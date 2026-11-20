@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) {
+      // TODO-F06a: hanya akun login dengan UID yang sama.
+      return false;
+    }
+    function guardPath(uid) {
+      return /databases/$(database)/documents/students/$(uid)/guards/daily;
+    }
+    function recordPath(uid, id) {
+      return /databases/$(database)/documents/students/$(uid)/attendance/$(id);
+    }
+    function day(time) { return int((time.toMillis() + 25200000) / 86400000); }
+    function fresh(uid) {
+      // TODO-F06b: guard belum ada, atau harinya lebih lama dari request.time (WIB).
+      return false;
+    }
+    function linked(uid, id) {
+      // TODO-F06c: hasil batch harus menghubungkan guard, waktu server, dan ID record.
+      return false;
+    }
+    match /students/{uid}/profile/{photo} {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid) && photo == 'photo' &&
+        request.resource.data.keys().hasOnly(['bytes', 'updatedAt']) &&
+        request.resource.data.bytes is bytes && request.resource.data.bytes.size() > 0 &&
+        request.resource.data.bytes.size() <= 102400 &&
+        request.resource.data.updatedAt == request.time;
+    }
+    match /students/{uid}/guards/{guard} {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid) && guard == 'daily' && fresh(uid) &&
+        request.resource.data.keys().hasOnly(['lastAt', 'recordId']) &&
+        request.resource.data.lastAt == request.time &&
+        request.resource.data.recordId is string &&
+        getAfter(recordPath(uid, request.resource.data.recordId)).data.createdAt == request.time;
+    }
+    match /students/{uid}/attendance/{id} {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && fresh(uid) && linked(uid, id) &&
+        request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.createdAt == request.time &&
+        existsAfter(/databases/$(database)/documents/students/$(uid)/attendance/$(id)/evidence/photo);
+      match /evidence/{photo} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && photo == 'photo' && fresh(uid) && linked(uid, id) &&
+          request.resource.data.keys().hasOnly(['bytes']) &&
+          request.resource.data.bytes is bytes &&
+          request.resource.data.bytes.size() > 0 &&
+          request.resource.data.bytes.size() <= 102400 &&
+          getAfter(recordPath(uid, id)).data.createdAt == request.time;
+      }
+    }
+  }
+}

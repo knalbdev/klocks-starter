@@ -1,0 +1,102 @@
+[
+  {
+    "id": "F01",
+    "title": "Hubungkan proyek dan inisialisasi Firebase",
+    "files": [
+      "lib/main.dart",
+      "android/app/google-services.json"
+    ],
+    "done": "File konfigurasi dikenali dan pemberitahuan startup Firebase hilang. Pesan sesi belum tersedia masih wajar sampai F03-F04 selesai."
+  },
+  {
+    "id": "F02",
+    "title": "Aktifkan Email/Password dan siapkan dua akun",
+    "files": [
+      "Firebase Console > Authentication"
+    ],
+    "done": "Dua akun muncul pada Users dengan UID berbeda. Credential belum diuji lewat UI sampai F03-F04 selesai."
+  },
+  {
+    "id": "F03",
+    "title": "Implementasikan login pada repository",
+    "files": [
+      "lib/features/auth/auth_repository.dart > signIn"
+    ],
+    "done": "Setelah F04 selesai: login salah menampilkan error dan login benar membuka beranda. F03 belum dapat diuji melalui UI bila stream sesi masih placeholder."
+  },
+  {
+    "id": "F04",
+    "title": "Dengarkan sesi dan baca identitas pengguna",
+    "files": [
+      "lib/features/auth/auth_repository.dart > watchSession, studentName"
+    ],
+    "done": "Login benar membuka beranda, nama sesuai akun, dan restart tidak memaksa login lagi selama sesi masih valid."
+  },
+  {
+    "id": "F05",
+    "title": "Tutup sesi saat logout dikonfirmasi",
+    "files": [
+      "lib/features/auth/auth_repository.dart > signOut"
+    ],
+    "done": "Batal tidak mengubah sesi, konfirmasi keluar menutup sesi, dan data di Console tetap ada."
+  },
+  {
+    "id": "F06",
+    "title": "Tulis tiga helper security rules dan publikasikan",
+    "files": [
+      "firestore.rules > owner, fresh, linked",
+      "Firebase Console > Firestore > Rules"
+    ],
+    "done": "Rules terpublikasi, pemilik dapat membaca path-nya, akun lain dan request tanpa login ditolak. Batch lengkap diuji setelah F08."
+  },
+  {
+    "id": "F07",
+    "title": "Baca metadata absensi secara realtime",
+    "files": [
+      "lib/features/attendance/data/attendance_repository.dart > watch"
+    ],
+    "done": "Akun baru menampilkan riwayat kosong, bukan error. Setelah F08, catatan baru muncul otomatis dan urut terbaru dahulu."
+  },
+  {
+    "id": "F08",
+    "title": "Tulis absensi dengan satu atomic batch",
+    "files": [
+      "lib/features/attendance/data/attendance_repository.dart > submit"
+    ],
+    "done": "Satu kiriman membuat tiga dokumen konsisten; timestamp berasal dari server; kiriman ulang tidak menambah record."
+  },
+  {
+    "id": "F09",
+    "title": "Unduh bukti foto saat diperlukan",
+    "files": [
+      "lib/features/attendance/data/attendance_repository.dart > photo"
+    ],
+    "done": "Foto yang dibuka sesuai record. Riwayat tetap hanya membaca metadata."
+  },
+  {
+    "id": "F10",
+    "title": "Baca dan simpan foto profil",
+    "files": [
+      "lib/features/profile/profile_repository.dart > watch, save"
+    ],
+    "done": "Akun tanpa foto tampil placeholder; foto tersimpan dan terganti; akun A/B tetap terpisah."
+  },
+  {
+    "id": "F11",
+    "title": "Atur pengecualian indeks untuk bytes foto",
+    "files": [
+      "firestore.indexes.json",
+      "Firebase Console > Firestore > Indexes"
+    ],
+    "done": "Dua exemption bytes terlihat di Console, JSON lokal sesuai, riwayat tetap terurut dan foto tetap terbaca."
+  },
+  {
+    "id": "F12",
+    "title": "Buktikan integrasi, keamanan, dan hasil akhir",
+    "files": [
+      "Firebase Console",
+      "evidence/hasil-uji.md"
+    ],
+    "done": "Semua kriteria terpenuhi, data terisolasi, tidak ada TODO implementasi tersisa, dan peserta bisa menjelaskan UID/batch/serverTimestamp."
+  }
+]
